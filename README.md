@@ -1,3 +1,3 @@
 # openlayer-notes
 
-## 1 [Openlayers 加载常用的底图控件](https://github.com/lovewhoilove/openlayer-notes/tree/main/1.%20map-controls)
+1. [Openlayers 加载常用的底图控件](https://github.com/lovewhoilove/openlayer-notes/tree/main/1.%20map-controls)
