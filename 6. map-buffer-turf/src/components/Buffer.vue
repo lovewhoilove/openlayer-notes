@@ -13,7 +13,7 @@
 // eslint-disable-next-line
 /* eslint-disable */
 import "ol/ol.css";
-import { Fill, Stroke, Style, Text } from "ol/style";
+import { Circle as CircleStyle, Fill, Stroke, Style, Text } from "ol/style";
 import VectorLayer from "ol/layer/Vector";
 import VectorSource from "ol/source/Vector";
 import { GeoJSON, WFS } from "ol/format";
@@ -32,6 +32,9 @@ import LinearRing from "ol/geom/LinearRing";
 
 import OL3Parser from "jsts/org/locationtech/jts/io/OL3Parser";
 import { BufferOp } from "jsts/org/locationtech/jts/operation/buffer";
+
+import { transform } from "ol/proj";
+import * as turf from "@turf/turf";
 
 export default {
   name: "Buffer",
@@ -66,35 +69,26 @@ export default {
         _self.showMessage("请求错误", "error", true, true);
       }
       const respToJson = await resp.json();
-      const features = new GeoJSON().readFeatures(respToJson, {
-        featureProjection: "EPSG:3857",
-      });
-      const parser = new OL3Parser();
-      parser.inject(
-        Point,
-        LineString,
-        LinearRing,
-        Polygon,
-        MultiPoint,
-        MultiLineString,
-        MultiPolygon
-      );
+      const features = new GeoJSON().readFeatures(respToJson);
 
-      // const reader = new GeoJSONReader();
-      // const writer = new GeoJSONWriter();
       for (let i = 0; i < features.length; i++) {
         const feature = features[i];
-        // convert the OpenLayers geometry to a JSTS geometry
-        const jstsGeom = parser.read(feature.getGeometry());
+        const coors = feature.getGeometry().flatCoordinates;
+        //将坐标转为经纬度
+        const converted = transform(coors, "EPSG:3857", "EPSG:4326");
+        //利用经纬度创建一个点要素
+        const pt = turf.point(converted);
+        //为给定半径的Feature计算一个缓冲区，注：支持的单位是英里、公里和度数
+        const buffer = turf.buffer(pt, 1000, { units: "meters" });
+        const bufferedFeature = new GeoJSON().readFeature(buffer);
+        //从缓冲区要素中拿到geometry并做坐标系转换
+        const bufferedGeometry = bufferedFeature
+          .getGeometry()
+          .transform("EPSG:4326", "EPSG:3857");
 
-        // create a buffer of 1000 meters around each line
-        const buffered = BufferOp.bufferOp(jstsGeom, 1000);
-
-        // convert back from JSTS and replace the geometry on the feature
-        feature.setGeometry(parser.write(buffered));
+        feature.setGeometry(bufferedGeometry);
       }
 
-      bufferedSource.clear();
       bufferedSource.addFeatures(features);
 
       const bufferStyle = _self.createBufferStyle("缓冲区");
