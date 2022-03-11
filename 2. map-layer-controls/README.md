@@ -1,4 +1,4 @@
-# map-controls
+# map-layer-controls
 
 ## Project setup
 ```

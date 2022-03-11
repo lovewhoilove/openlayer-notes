@@ -1,4 +1,4 @@
-# map-controls
+# map-buffer
 
 ## Project setup
 ```

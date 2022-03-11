@@ -1,4 +1,4 @@
-# map-controls
+# map-buffer-turf
 
 ## Project setup
 ```

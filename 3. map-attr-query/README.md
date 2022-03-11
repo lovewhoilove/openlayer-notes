@@ -1,4 +1,4 @@
-# map-controls
+# map-attr-query
 
 ## Project setup
 ```

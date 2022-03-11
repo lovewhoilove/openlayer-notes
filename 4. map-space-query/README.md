@@ -1,4 +1,4 @@
-# map-controls
+# map-space-query
 
 ## Project setup
 ```
