@@ -1,4 +1,4 @@
-# map-buffer-turf
+# map-swipe
 
 ## Project setup
 ```
